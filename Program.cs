@@ -1,4 +1,7 @@
-﻿//copied from: https://www.codeproject.com/tips/1017834/how-to-send-data-from-one-process-to-another-in-cs
+﻿////////////////////////////
+// original code copied from:
+// https://www.codeproject.com/tips/1017834/how-to-send-data-from-one-process-to-another-in-cs
+////////////////////////////
 
 using System;
 using System.Threading;

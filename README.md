@@ -44,13 +44,13 @@ note: **initial command must have path** for shell > command to work
 ### PowerShell & temp file
 note: **-f** usage
 ```
-%bin%\SingleInstanceAccumulator -f "-c:powershell -ExecutionPolicy bypass %%bin%%\test.ps1 -list '$files'" "%1"
+%bin%\SingleInstanceAccumulator -f "-c:powershell -ExecutionPolicy bypass %bin%\test.ps1 -list '$files'" "%1"
 ```
 
 ### PowerShell & *inline* files list
 note: **-q** usage
 ```
-%bin%\SingleInstanceAccumulator -q:' "-c:powershell -ExecutionPolicy bypass %%bin%%\test.ps1 -list $files" "%1"
+%bin%\SingleInstanceAccumulator -q:' "-c:powershell -ExecutionPolicy bypass %bin%\test.ps1 -list $files" "%1"
 ```
 
 ## test.ps1 (with temp file)
