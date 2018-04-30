@@ -16,9 +16,11 @@ e.g. On my system, for ".mov" files, I would replace `FileType` above with `VLC.
 ### Complex REG ADD example
 Replace "*** see command line examples ***" above with your desired command line.<br/>
 Note: **quotes** & **environment variables** must be escaped and escaping work slightly differently for the initial command versus later in the string!?!
+Note2: this form works directly from interactive cmd.exe; if you're running from a batch file, all the %'s need to be doubled up (as is typical)
+Note3: i've subsequently changed this context menu to associate to all file types (via "HKEY_CLASSES_ROOT\*\"), to avoid mapping to each file type individually.
 
 ```
-λ reg add "HKEY_CLASSES_ROOT\VLC.mov\shell\Transcode\command" /f /ve /t REG_EXPAND_SZ /d "\"^%bin^%\SingleInstanceAccumulator\" -f \"-c:powershell -ExecutionPolicy bypass "\"^%bin^%\test.ps1\"" -list '$files'\" \"%1\""
+λ reg add "HKEY_CLASSES_ROOT\*\shell\Transcode\command" /f /ve /t REG_EXPAND_SZ /d "\"^%bin^%\SingleInstanceAccumulator\" -f \"-c:powershell -ExecutionPolicy bypass "\"^%bin^%\transcode.ps1\"" -list '$files'\" \"%1\""
 ```
 
 ## Usage
