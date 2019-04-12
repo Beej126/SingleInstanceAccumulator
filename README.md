@@ -46,6 +46,18 @@ Note3: i've subsequently changed this context menu to associate to all file type
 ## Command Line Examples
 note: **initial command must have path** for shell > command to work
 
+### put selected files onto clipboard
+- this is a fun use of delimiter to create multiple echo statements that are then piped to "clip" device
+- to script this in a registry "setup" batch file, we need to **double** escape the "&" and "|" characters...
+  - once to avoid the initial setup batch file from interpreting them directly
+  - and secondly to avoid the command line launched from SingleInstanceAccumulator from processing them
+  - so that they are finally present to be run directly from the final cmd.exe
+
+`setup.cmd`
+```batch
+reg add "HKEY_CURRENT_USER\Software\Classes\*\shell\Path2Clip\command" /f /ve /t REG_EXPAND_SZ /d "\"^%%bin^%%\SingleInstanceAccumulator\" -w -d:\" ^^^& echo \" \"-c:cmd /c (echo $files) ^^^| clip\" \"%%1\""
+```
+
 ### PowerShell & temp file
 note: **-f** usage
 ```
