@@ -124,3 +124,4 @@ pause
      ::replace spaces with powershell escapes
      set cwd=%cwd: =` %
      ```
+   1. **-OR-** instead of escaping spacing you can surround powershell arguments with double quotes which requires nested escaping for the quotes to pass through to that execution context... [example here in another repo of mine](https://gist.github.com/Beej126/f26e6649cfcc38accee3a0a8cc0a9d04#file-beejnetilpatcher_setup-cmd-L21)
