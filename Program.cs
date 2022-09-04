@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace SingleInstanceArgAggregator
 {
@@ -104,6 +105,15 @@ Usage:
         //we drop out here when the form closes upon timer expiration
 
         var cmd = cmdLine.Split(' ')[0];
+
+        Regex regex = new Regex("'(.*?)'");
+        var matches = regex.Matches(cmdLine);
+        if (matches.Count > 0)  //if there is text inside single quotes use that as a cmd...
+        {
+            cmdLine = cmdLine.Replace("'", "");
+            cmd = matches[0].Groups[1].ToString();
+        }
+
         var args = cmdLine.Substring(cmd.Length + 1);
 
         string output = null;
