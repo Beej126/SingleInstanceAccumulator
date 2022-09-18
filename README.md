@@ -42,7 +42,7 @@ when run from windows explorer context menu the above reg entry will execute a c
   quote will default to nothing
 
 -d:delimiter (default: ,)
--q:quote (default: ")
+-q:quote character around each accumulated argument (default: ") - see examples below
 -t:timeout millisecs (default: 200)
 -w = hidden launch
 -v = debug output
