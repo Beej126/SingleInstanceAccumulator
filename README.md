@@ -113,6 +113,8 @@ pause
 ```
 
 ## General Tips
+1. By default Explorer will only show context menu's when <mark>less than 15 files are selected</mark> - https://www.tenforums.com/tutorials/94513-fix-context-menu-items-missing-when-more-than-15-selected-windows.html ... here's the reg setting to bump it to 100:
+   `reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer" /f /v MultipleInvokePromptMinimum /t REG_DWORD /d 100`
 1. you should probably only **interactively test manual SingleInstanceAccumulator.exe calls via cmd.exe** (i.e. not at a powershell command line)... if you must test at powershell cli, you then also have to escape the single tick after -q (e.g. ``-q:`'``) because otherwise your interactive powershell cli will get caught on the single tick as an open string... remember these SingleInstanceAccumulator command lines are primarily intended to be fired from shell > command registry entries and that initial command line execution context is not powershell, it is traditional cmd.exe syntax rules, so the -q:' is fine there
 1. can be super helpful to use "-NoExit" arg on powershell.exe command lines so those windows stay open to see errors 
 1. powershell treats spaces as separate args on the command line, so if you're passing any args with spaces you'll need to escape them with back ticks (i.e. the ` character)
