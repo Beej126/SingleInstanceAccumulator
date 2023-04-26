@@ -32,6 +32,8 @@ when run from windows explorer context menu the above reg entry will execute a c
 "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -ExecutionPolicy bypass C:\bin\transcode.ps1 -listFilePath 'C:\Users\Beej\AppData\Local\Temp\tmp5EEF.tmp'
 ```
 
+side note if interested, here's the [transcode.ps1](https://github.com/Beej126/PowerShell/blob/master/transcode.ps1) script where i drive handbrake command line to process .mov files from point and shoot cameras into mp4's.
+
 ## Usage
 ```shell
 "-c:command line" (default: cmd /c echo $files && pause)
@@ -50,17 +52,26 @@ when run from windows explorer context menu the above reg entry will execute a c
 <br/>
 
 ## Command Line Examples
-- shell > command registry entries require full path on the command to work (e.g. c:\bin\SingleInstanceAccumulator.exe, not just SingleInstanceAccumulator.exe)... for some ungawdly reason of Windows, our path environment variable is not honored.
-- but the -c:command specified to SingleInstanceAccumulator will know your environment's path
+Heads up:
+- registry entries like HKEY_CURRENT_USER\Software\Classes\*\shell\xxxx\command require full path on the command (e.g. c:\bin\SingleInstanceAccumulator.exe, not just SingleInstanceAccumulator.exe)... for some ungawdly reason of Windows, our path environment variable is not honored.
+- but the -c:command specified to SingleInstanceAccumulator will know your environment's path.
+
+### example 0 - feed files to a 3rd party exe
+`setup.cmd` (note: %'s are doubled up to be executed from batch file)
+```batch
+reg add "HKEY_CURRENT_USER\Software\Classes\*\shell\MyCommand\command" /f /ve /t REG_EXPAND_SZ /d "\"^%%bin^%%\SingleInstanceAccumulator\" -w \"-c:myprogram.exe $files\" \"%%1\""
+```
+
 
 ### example 1 - put selected files onto clipboard
 - this is a fun use of delimiter to create multiple echo statements that are then piped to "clip" device
+- note using the delimeter to add echo commands to each selected file as interesting leverage of native batch file capabilities
 - to script the corresponding registry entires in a "setup" batch file, we need to **double** escape the "&" and "|" characters...
   - once to avoid the initial setup batch file from interpreting them directly
   - and secondly to avoid the command line launched from SingleInstanceAccumulator from processing them
   - so that they are finally present to be run directly from the final cmd.exe
 
-`setup.cmd`
+`setup.cmd` (note: %'s are doubled up to be executed from batch file)
 ```batch
 reg add "HKEY_CURRENT_USER\Software\Classes\*\shell\Path2Clip\command" /f /ve /t REG_EXPAND_SZ /d "\"^%%bin^%%\SingleInstanceAccumulator\" -w -d:\" ^^^& echo \" \"-c:cmd /c (echo $files) ^^^| clip\" \"%%1\""
 ```
@@ -68,7 +79,7 @@ reg add "HKEY_CURRENT_USER\Software\Classes\*\shell\Path2Clip\command" /f /ve /t
 ### example 2 - PowerShell script - using temp file approach
 - note: **-f** usage
 
-command line:
+command line: (note %'s are NOT doubled up as they would need to be if this is executed from a batch file)
 ```cmd
 %bin%\SingleInstanceAccumulator -f "-c:powershell -ExecutionPolicy bypass %bin%\test.ps1 -listFilePath '$files'" "%1"
 ```
