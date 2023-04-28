@@ -38,7 +38,7 @@ jobs:
         # https://stackoverflow.com/questions/13920146/using-msbuild-exe-to-publish-a-asp-net-mvc-4-project-with-the-cmd-line/61926970#61926970
         #common bad recommend: run: msbuild VipLeagueWpf.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=ClickOnceProfile
         #https://stackoverflow.com/questions/16246562/using-msbuild-to-execute-a-file-system-publish-profile/54094398#54094398
-        run: msbuild /t:restore,publish /p:Configuration=Release /p:DeployOnBuild=true /p:StandaloneExeToFolder.pubxml
+        run: msbuild /t:restore,publish /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=StandaloneExeToFolder.pubxml
 
       - name: rename exe to build number
         run: |
