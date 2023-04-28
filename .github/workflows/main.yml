@@ -1,7 +1,7 @@
 # https://www.elliotdenolf.com/posts/build-net-5-applications-with-github-actions/
 # https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages
 
-name: build main branch to standalone exe and deploy to Azure storage
+name: CI/CD
 on: 
   push:
     branches:
