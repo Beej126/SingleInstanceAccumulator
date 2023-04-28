@@ -40,6 +40,11 @@ jobs:
         #https://stackoverflow.com/questions/16246562/using-msbuild-to-execute-a-file-system-publish-profile/54094398#54094398
         run: msbuild /t:restore,publish /p:Configuration=Release /p:DeployOnBuild=true /p:StandaloneExeToFolder.pubxml
 
+      - name: rename exe to build number
+        run: |
+          cd ./bin/Release/net7.0-windows/publish/win-x86/
+          mv SingleInstanceAccumulator.exe SingleInstanceAccumulator_${{github.run_number}}.exe 
+
 # couldn't use github pages to host the binary because of the >100MB file size for the main exe (~132mb initially)
 #switching to azure blob storage, see next block below
 #       - name: Commit new build to GitHub Pages
@@ -53,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: buildartifact
-          path: ./bin/Release/net7.0-windows/publish/win-x86\SingleInstanceAccumulator.exe
+          path: ./bin/Release/net7.0-windows/publish/win-x86/SingleInstanceAccumulator_${{github.run_number}}.exe
 
 #########################################################################
 # next annoying issue was the azure cli step runs in a linux only container that fails on Windows runner!
@@ -83,6 +88,7 @@ jobs:
 
       # azure blob storage to host the binary (alas, main exe file was a smidge too big for github repo)
       # https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-static-site-github-actions
+      # note to self: AZURE_CREDENTIALS is in your keypass file =) ... just paste the whole json structure into Settings > Secrets & Variables > Actions > New Secret...
       - uses: azure/login@v1
         with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -93,7 +99,7 @@ jobs:
           # dont do this!: azcliversion: 2.0.72
           # https://github.com/Azure/cli/issues/56#issuecomment-965477430
           inlineScript: |
-              az storage blob upload-batch --account-name beejstor --auth-mode key --destination '$web/SingleInstanceAccumulator' --source ./buildartifact
+              az storage blob upload-batch --account-name beejstor --auth-mode key --destination '$web' --source ./buildartifact
               
 #       - name: Purge CDN endpoint
 #         uses: azure/CLI@v1
