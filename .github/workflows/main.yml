@@ -1,0 +1,107 @@
+# https://www.elliotdenolf.com/posts/build-net-5-applications-with-github-actions/
+# https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages
+
+name: build main branch to standalone exe and deploy to Azure storage
+on: 
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+
+jobs:
+  build:
+
+    runs-on: windows-latest #https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources
+
+    name: build
+
+    steps:
+
+      - uses: actions/checkout@v2
+
+#       - name: Setup dotnet
+#         uses: actions/setup-dotnet@v1
+#         with:
+#           dotnet-version: '7.x'
+          
+      # resolves: MSB4803: The task "FormatUrl" is not supported on the .NET Core version of MSBuild. Please use the .NET Framework version of MSBuild.  
+      - name: Add .net msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.3          
+        
+#       - name: dotnet restore
+#         run: dotnet restore
+
+      - name: build the app via publish profile
+        #run: dotnet build -c Release /p:DeployOnBuild=true /p:PublishProfile=ClickOnceProfile # https://stackoverflow.com/questions/62787426/dotnet-publish-profile-ignores-pubxml-file/62954314#62954314
+        #run: dotnet publish -p:PublishProfile=ClickOnceProfile #https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-publish#msbuild
+        # https://stackoverflow.com/questions/13920146/using-msbuild-exe-to-publish-a-asp-net-mvc-4-project-with-the-cmd-line/61926970#61926970
+        #common bad recommend: run: msbuild VipLeagueWpf.sln /p:Configuration=Release /p:DeployOnBuild=true /p:PublishProfile=ClickOnceProfile
+        #https://stackoverflow.com/questions/16246562/using-msbuild-to-execute-a-file-system-publish-profile/54094398#54094398
+        run: msbuild /t:restore,publish /p:Configuration=Release /p:DeployOnBuild=true /p:StandaloneExeToFolder.pubxml
+
+# couldn't use github pages to host the binary because of the >100MB file size for the main exe (~132mb initially)
+#switching to azure blob storage, see next block below
+#       - name: Commit new build to GitHub Pages
+#         #this one had an rsync dependency not present on windows: uses: JamesIves/github-pages-deploy-action@4.1.5 # https://github.com/JamesIves/github-pages-deploy-action/releases
+#         uses: peaceiris/actions-gh-pages@v3
+#         with:
+#           github_token: ${{ secrets.GITHUB_TOKEN }}
+#           publish_dir: ./bin/Release/net7.0-windows/publish/win-x86\SingleInstanceAccumulator.exe
+
+      - name: Upload Artifacts 🔺
+        uses: actions/upload-artifact@v1
+        with:
+          name: buildartifact
+          path: ./bin/Release/net7.0-windows/publish/win-x86\SingleInstanceAccumulator.exe
+
+#########################################################################
+# next annoying issue was the azure cli step runs in a linux only container that fails on Windows runner!
+# so we have to switch to a linux based job to do the deploy piece, arrrg
+# that means we have to upload the results of the build as an artifact so we can retrieve it over in the linux runner
+# artifact pattern from here: https://github.com/JamesIves/github-pages-deploy-action#operating-system-support-
+
+  deploy:
+    needs: [build] # The second job must depend on the first one to complete before running, and uses ubuntu-latest instead of windows.
+    runs-on: ubuntu-latest
+    name: deploy build artifact to azure storage
+
+    steps:
+#       - name: Checkout 🛎️
+#         uses: actions/checkout@v2.3.1
+
+      - name: Download Artifacts 🔻 # The built project is downloaded into the 'site' folder.
+        uses: actions/download-artifact@v1
+        with:
+          name: buildartifact
+
+#       - name: Deploy 🚀
+#         uses: JamesIves/github-pages-deploy-action@4.1.5
+#         with:
+#           branch: gh-pages
+#           folder: 'site' # The deployment folder should match the name of the artifact. Even though our project builds into the 'build' folder the artifact name of 'site' must be placed here.
+
+      # azure blob storage to host the binary (alas, main exe file was a smidge too big for github repo)
+      # https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blobs-static-site-github-actions
+      - uses: azure/login@v1
+        with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Upload to blob storage
+        uses: azure/CLI@v1
+        with:
+          # dont do this!: azcliversion: 2.0.72
+          # https://github.com/Azure/cli/issues/56#issuecomment-965477430
+          inlineScript: |
+              az storage blob upload-batch --account-name beejstor --auth-mode key --destination '$web/SingleInstanceAccumulator' --source ./buildartifact
+              
+#       - name: Purge CDN endpoint
+#         uses: azure/CLI@v1
+#         with:
+#           azcliversion: 2.0.72
+#           inlineScript: |
+#              az cdn endpoint purge --content-paths  "/*" --profile-name "CDN_PROFILE_NAME" --name "CDN_ENDPOINT" --resource-group "RESOURCE_GROUP"
+
+      - name: az logout
+        run: |
+          az logout
