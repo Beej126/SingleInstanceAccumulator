@@ -2,7 +2,8 @@
 # https://swimburger.net/blog/dotnet/how-to-deploy-aspnet-blazor-webassembly-to-github-pages
 
 name: CI/CD
-on: 
+on:
+  workflow_dispatch:
   push:
     branches:
       - main
