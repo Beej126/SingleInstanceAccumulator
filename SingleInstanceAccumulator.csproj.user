@@ -6,4 +6,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <StartArguments>-v "-c:powershell -ExecutionPolicy bypass c:\bin\test.ps1 -list %24files" "this is file1 path"</StartArguments>
   </PropertyGroup>
+  <PropertyGroup>
+    <_LastSelectedProfileId>C:\save\repos\Personal\SingleInstanceAccumulator\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="MessageForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>
