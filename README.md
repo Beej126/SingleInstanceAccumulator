@@ -3,7 +3,7 @@
 ## Purpose
 See [typical stack-o's](https://www.google.com/search?q=context+menu+single+instance+site%3Astackoverflow.com) expressing the need, e.g. [this one](https://stackoverflow.com/questions/1821662/how-to-add-new-items-to-right-click-event-on-folders-and-files-in-windows).
 
-The gist is it comes in handy as a bridge between selecting multiple files or folders in custom Windows Explorer context menus and sending all the  selections to various scripts or 3rd party tools.
+The gist is it comes in handy as a bridge between selecting multiple files or folders in custom Windows File Explorer context menus and sending all the selections to various scripts or 3rd party tools.
 
 ## Usage
 ```shell
@@ -23,15 +23,15 @@ The gist is it comes in handy as a bridge between selecting multiple files or fo
 <br/>
 
 ## Command Line Examples
-Heads up:
+Heads up about registry entries:
+- my primary interest and therefore these docs focus on adding custom context menus to File Explorer, which happens via registry entries under HKEY_CURRENT_USER\Software\Classes
 - registry entries like `HKEY_CURRENT_USER\Software\Classes\*\shell\xxxx\command` require full path on the main executable (e.g. c:\bin\SingleInstanceAccumulator.exe, not just SingleInstanceAccumulator.exe)... for some ungawdly reason of Windows, our path environment variable is not honored.
 - however the -c:command executed from SingleInstanceAccumulator will know your environment's path.
 - reg entries like `HKEY_CURRENT_USER\Software\Classes\*\shell\` will map to **all file types** (via the asterisk "\*"), which avoids needing to create an entry for each individual file type if you don't need it filetype specific.
-- replace the asterisk with a specific filetype to be specific... this gets into more esoterics than i care to elaborate on here =) looking at your existing shell entries is helpful and there is tons of writeups out there
-- here's are some of my own notes about registering new file types
+- otherwise replace the asterisk in item above with a specific filetype ... this gets into more esoterics than i care to elaborate on here =) looking at your existing shell entries is helpful and there is tons of writeups out there
 
 ## examples are all formatted to be executed from WITHIN A BATCH FILE
-- i save them in a xyz_setup.cmd batch file for each custom context menu i want to conveniently deploy to new windows environments
+- as you get into the context menu game, you'll pile up a few you want to have at the ready to set up a new workstation, etc... so plan to save these in xyz_setup.cmd batch files to conveniently deploy to new windows environments
 - batch file context (versus interactive cmd.exe) requires doubling up environment variables %%'s to escape them
 - quotes also often need to be escaped depending on the layers of interpretation happening
 - and we need to **double** escape the "&" and "|" characters with "^" for the accumulated command line portion
@@ -45,7 +45,6 @@ Heads up:
 reg add "HKEY_CURRENT_USER\Software\Classes\*\shell\MyCommand\command" /f /ve /t REG_EXPAND_SZ /d "\"^%%bin^%%\SingleInstanceAccumulator\" -w \"-c:myprogram.exe $files\" \"%%1\""
 ```
 
-
 ### example 1 - put selected files onto clipboard
 - this is a fun use of delimiter to create multiple echo statements that are then piped to "clip" device
 - note using the delimeter to add echo commands to each selected file as interesting leverage of native batch file capabilities
@@ -58,8 +57,6 @@ when run from windows explorer context menu the above reg entry will execute a c
 ```
 "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -ExecutionPolicy bypass C:\bin\transcode.ps1 -listFilePath 'C:\Users\Beej\AppData\Local\Temp\tmp5EEF.tmp'
 ```
-
-
 
 ### example 2 - PowerShell script - using temp file approach
 - note: **-f** usage
@@ -133,3 +130,9 @@ pause
    :: crucial multi-file handling property - https://learn.microsoft.com/en-us/windows/win32/shell/context-menu-handlers?redirectedfrom=MSDN#employing-the-verb-selection-model
    reg add "HKEY_CLASSES_ROOT\FileType\shell\YourNewContextMenu" /f /v "MultiSelectModel" /d "Player"
    ```
+1. in this general file explorer customization space you might also want to start creating new file extensions that have their own icon and associated shell commands... the easiest way i've come to manage those are via commands built into cmd.exe, here's a quick example:
+   ```
+   assoc .bth=ElevatorHiddenBatch
+   ftype ElevatorHiddenBatch=c:\bin\elevator.exe -hide -c \"%1\"
+   ```
+   (fyi, [Elevator.exe](https://github.com/Beej126/Elevator) is another tool i've cobbled together to provide some more handy stuff in this space =)
