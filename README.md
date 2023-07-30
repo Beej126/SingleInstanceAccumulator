@@ -89,7 +89,7 @@ pause
 - using **-q** puts the specified quote character around EACH of the comma delimited file arguments accumulated, so it comes into the ps1 script **as a true array**
 
 ```cmd
-reg add "HKEY_CURRENT_USER\Software\Classes\*\shell\MyCommand\command" /f /ve /t REG_EXPAND_SZ /d "\"^%%bin^%%\SingleInstanceAccumulator\" -w -q:' \"-c:powershell -ExecutionPolicy bypass \"^%%bin^%%\test.ps1 -filesArray $files\" \"%%1\""
+reg add "HKEY_CURRENT_USER\Software\Classes\*\shell\MyCommand\command" /f /ve /t REG_EXPAND_SZ /d "\"^%%bin^%%\SingleInstanceAccumulator\" -w -q:' \"-c:powershell -ExecutionPolicy bypass ^%%bin^%%\test.ps1 -filesArray $files\" \"%%1\""
 ```
 - note: -filesArray command line argument corresponds to test.ps1's $filesArray param shown next below
 
