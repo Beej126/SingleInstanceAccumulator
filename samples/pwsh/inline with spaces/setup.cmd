@@ -14,3 +14,6 @@ rem under cmd.exe parser which is in play for .cmd batch files:
 rem 1) to get double quotes inside of double quotes must be \ escaped
 rem 2) backslash must be escaped itself
 rem 3) hat character ^ escapes other special characters like %, which is useful to avoid premature expansion of %envar%
+
+rem using pwsh -Command lets us leverage powershell's native internal single quoted string handling which is the main key to getting an array of strings with spaces passed to a powershell script
+rem but then we also have to use the "&" "call operator" to execute the ps1
