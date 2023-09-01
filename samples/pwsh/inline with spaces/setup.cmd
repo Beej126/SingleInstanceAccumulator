@@ -7,7 +7,9 @@ rem     (escaped) double quotes surrounding the exe path in case it has spaces  
 rem     double escaped %'s to avoid being expanded by the cmd.exe parser and therefore yield single %bin% in the registry which will get expanded at runtime, this could be allowed to expand at cmd.exe execution but that would be less flexible to MOVING the %bin% path AFTER these registry entries have been created
 rem                                                                                                  ^-----^
 rem     (escaped) double quotes around the -c portion which get stripped off by SingleInstanceAccumulator                                       ^-------------------------------------------------------------^
-rem     slash is escaped so it passes through initial parse, along with adjacent escaped quotes                                                                    ^ ^------------------------------------^ ^
+rem     slash is escaped so it passes through initial parse, along with adjacent escaped quotes (see -Command comment below)                                       ^ ^------------------------------------^ ^
+rem     see "call operator" comment below regarding "&" ampersand                                                                                                      ^
+rem     single quotes around ps1 file supports spaces in that path                                                                                                      ^-------------^
 rem end of /d quoted string
 
 rem escaped quotes and double percent around the final %1 should be pretty apparent at this point                                                                                                                ^ ^--^
