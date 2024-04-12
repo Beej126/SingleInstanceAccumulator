@@ -5,3 +5,5 @@
 /bin
 /obj
 /.vs
+/Properties/PublishProfiles/StandaloneExeToFolder.pubxml.user
+/SingleInstanceAccumulator.csproj.user
