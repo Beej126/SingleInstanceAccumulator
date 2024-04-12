@@ -6,6 +6,10 @@
 	  <Nullable>enable</Nullable>
 	  <UseWindowsForms>true</UseWindowsForms>
 	  <ImplicitUsings>enable</ImplicitUsings>
+	  <RepositoryUrl>https://github.com/Beej126/SingleInstanceAccumulator</RepositoryUrl>
+	  <PackageProjectUrl>https://github.com/Beej126/SingleInstanceAccumulator</PackageProjectUrl>
+	  <AssemblyVersion>1.0.0.4</AssemblyVersion>
+	  <FileVersion>1.0.0.4</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="MessageForm.cs" />
