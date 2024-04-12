@@ -33,25 +33,30 @@ using System.Runtime.InteropServices;
     public static uint WM_COPYDATA = 0x004A;
 
     /// <summary>
+    /// The WM_USER constant is used by applications to help define private messages for use by private window classes, usually of the form WM_USER+X, where X is an integer value.
+    /// </summary>
+    public static uint WM_USER = 0x0400;
+
+    /// <summary>
     /// Contains data to be passed to another application by the WM_COPYDATA message.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
     public struct COPYDATASTRUCT
     {
-      /// <summary>
-      /// The data to be passed to the receiving application. This member can be IntPtr.Zero.
-      /// </summary>
-      public IntPtr dwData;
+        /// <summary>
+        /// The data to be passed to the receiving application. This member can be IntPtr.Zero.
+        /// </summary>
+        public IntPtr dwData;
 
-      /// <summary>
-      /// The size, in bytes, of the data pointed to by the lpData member.
-      /// </summary>
-      public int cbData;
+        /// <summary>
+        /// The size, in bytes, of the data pointed to by the lpData member.
+        /// </summary>
+        public int cbData;
 
-      /// <summary>
-      /// The data to be passed to the receiving application. This member can be IntPtr.Zero.
-      /// </summary>
-      public IntPtr lpData;
+        /// <summary>
+        /// The data to be passed to the receiving application. This member can be IntPtr.Zero.
+        /// </summary>
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.LPWStr)]
+        public string lpData;
     }
 
     /// <summary>
@@ -63,7 +68,7 @@ using System.Runtime.InteropServices;
     /// <param name="lParam">Additional message-specific information.</param>
     /// <returns>The return value specifies the result of the message processing; it depends on the message sent.</returns>
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    public static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);
+    public static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, ref COPYDATASTRUCT lParam);
 
     /// <summary>
     /// Values used in the struct CHANGEFILTERSTRUCT

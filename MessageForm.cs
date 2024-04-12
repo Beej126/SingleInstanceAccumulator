@@ -24,7 +24,6 @@ namespace SingleInstanceArgAggregator
             WindowState = FormWindowState.Minimized;
         }
 
-        //private void Form1_Load(object sender, EventArgs e)
         protected override void OnLoad(EventArgs e)
         {
             Win32.CHANGEFILTERSTRUCT changeFilter = new();
@@ -54,17 +53,15 @@ namespace SingleInstanceArgAggregator
             {
                 // Extract the file name
                 Win32.COPYDATASTRUCT copyData = (Win32.COPYDATASTRUCT)Marshal.PtrToStructure(m.LParam, typeof(Win32.COPYDATASTRUCT));
-                int dataType = (int)copyData.dwData;
-                if (dataType == 2)
+                if (copyData.dwData == (Win32.WM_USER + 1))
                 {
-                    string fileName = Marshal.PtrToStringAnsi(copyData.lpData);
                     Timer.Interval = TimeoutMillisecs; //this is a timer "reset"
-                    OnNewValue(fileName);
+                    OnNewValue(copyData.lpData);
                     //MessageBox.Show($"received: {fileName}", "SingleInstanceArgAggregator", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
-                    MessageBox.Show(String.Format("Unrecognized data type = {0}.", dataType), "SingleInstanceArgAggregator", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Unrecognized message id, expecting {Win32.WM_USER + 1}, got {copyData.dwData}.");
                 }
             }
             else
@@ -87,38 +84,28 @@ namespace SingleInstanceArgAggregator
 
             if (retries == 0)
             {
-                MessageBox.Show($"Couldn't find window named: {windowTitle}", "SingleInstanceArgAggregator", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Couldn't find window named: {windowTitle}");
                 return false;
             }
 
-            var ptrCopyData = IntPtr.Zero;
+            //good example of COPYDATA + SendMessage: https://forum.strokesplus.net/posts/t6052-Using-Windows-Messages--WM-COPYDATA--to-Execute-Scripts
             try
             {
                 // Create the data structure and fill with data
                 Win32.COPYDATASTRUCT copyData = new Win32.COPYDATASTRUCT
                 {
-                    dwData = new IntPtr(2),    // Just a number to identify the data type
-                    cbData = data.Length + 1,  // One extra byte for the \0 character
-                    lpData = Marshal.StringToHGlobalAnsi(data)
+                    dwData = new IntPtr(Win32.WM_USER + 1),    // Just an arbitrary number to make sure we're getting our specific message on the other side
+                    cbData = System.Text.Encoding.Unicode.GetBytes(data).Length + 1,  // One extra byte for the \0 character
+                    lpData = data
                 };
 
-                // Allocate memory for the data and copy
-                ptrCopyData = Marshal.AllocCoTaskMem(Marshal.SizeOf(copyData));
-                Marshal.StructureToPtr(copyData, ptrCopyData, false);
-
                 // Send the message
-                Win32.SendMessage(ptrWnd, Win32.WM_COPYDATA, IntPtr.Zero, ptrCopyData);
+                Win32.SendMessage(ptrWnd, Win32.WM_COPYDATA, IntPtr.Zero, ref copyData);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString(), windowTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
-            }
-            finally
-            {
-                // Free the allocated memory after the contol has been returned
-                if (ptrCopyData != IntPtr.Zero)
-                    Marshal.FreeCoTaskMem(ptrCopyData);
             }
 
             return true;
